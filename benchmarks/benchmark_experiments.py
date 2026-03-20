@@ -17,6 +17,7 @@ OUTPUT_DIR = ROOT_DIR / "output"
 BASE_DATASET_PATH = DATASETS_DIR / "base" / "standard_samples.txt"
 LONG_DATASET_PATH = DATASETS_DIR / "long" / "long_sentence_samples.txt"
 PARAGRAPH_DATASET_PATH = DATASETS_DIR / "paragraph" / "paragraph_samples.txt"
+LONG_TEXT_DATASET_PATH = DATASETS_DIR / "long_text" / "long_text_samples.txt"
 GROUP_SUMMARY_CSV_PATH = OUTPUT_DIR / "experiment_group_summary.csv"
 SAMPLE_DETAILS_CSV_PATH = OUTPUT_DIR / "experiment_sample_details.csv"
 
@@ -199,6 +200,7 @@ def main() -> None:
     base_samples = load_dataset(BASE_DATASET_PATH)
     long_samples = load_dataset(LONG_DATASET_PATH)
     paragraph_samples = load_dataset(PARAGRAPH_DATASET_PATH)
+    long_text_samples = load_dataset(LONG_TEXT_DATASET_PATH)
 
     experiment_groups = [
         ("single_word", select_samples(base_samples, lambda s: len(s.split()) == 1)),
@@ -211,6 +213,7 @@ def main() -> None:
         ),
         ("long_sentence_gt20_words", long_samples),
         ("paragraph_samples", paragraph_samples),
+        ("long_text_gt200_words", long_text_samples),
     ]
 
     group_rows: list[dict[str, object]] = []

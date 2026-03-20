@@ -5,34 +5,37 @@
 <line x1="90" y1="550.00" x2="1160" y2="550.00" stroke="#d9e2ec" stroke-width="1"/>
 <text x="78" y="555.00" text-anchor="end" font-size="14" fill="#486581">0.0%</text>
 <line x1="90" y1="456.00" x2="1160" y2="456.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="461.00" text-anchor="end" font-size="14" fill="#486581">18.2%</text>
+<text x="78" y="461.00" text-anchor="end" font-size="14" fill="#486581">18.0%</text>
 <line x1="90" y1="362.00" x2="1160" y2="362.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="367.00" text-anchor="end" font-size="14" fill="#486581">36.3%</text>
+<text x="78" y="367.00" text-anchor="end" font-size="14" fill="#486581">35.9%</text>
 <line x1="90" y1="268.00" x2="1160" y2="268.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="273.00" text-anchor="end" font-size="14" fill="#486581">54.5%</text>
+<text x="78" y="273.00" text-anchor="end" font-size="14" fill="#486581">53.9%</text>
 <line x1="90" y1="174.00" x2="1160" y2="174.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="179.00" text-anchor="end" font-size="14" fill="#486581">72.6%</text>
+<text x="78" y="179.00" text-anchor="end" font-size="14" fill="#486581">71.8%</text>
 <line x1="90" y1="80.00" x2="1160" y2="80.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="85.00" text-anchor="end" font-size="14" fill="#486581">90.8%</text>
-<rect x="116.75" y="80.00" width="99.36" height="470.00" fill="#2f6b7c" rx="4"/>
-<text x="166.43" y="72.00" text-anchor="middle" font-size="13" fill="#102a43">90.81%</text>
-<text x="166.43" y="572.00" text-anchor="end" transform="rotate(-28 166.43,572.00)" font-size="13" fill="#243b53">single_word</text>
-<rect x="269.61" y="89.71" width="99.36" height="460.29" fill="#2f6b7c" rx="4"/>
-<text x="319.29" y="81.71" text-anchor="middle" font-size="13" fill="#102a43">88.93%</text>
-<text x="319.29" y="572.00" text-anchor="end" transform="rotate(-28 319.29,572.00)" font-size="13" fill="#243b53">multi_word_phrase</text>
-<rect x="422.46" y="126.89" width="99.36" height="423.11" fill="#2f6b7c" rx="4"/>
-<text x="472.14" y="118.89" text-anchor="middle" font-size="13" fill="#102a43">81.75%</text>
-<text x="472.14" y="572.00" text-anchor="end" transform="rotate(-28 472.14,572.00)" font-size="13" fill="#243b53">number_heavy</text>
-<rect x="575.32" y="119.23" width="99.36" height="430.77" fill="#2f6b7c" rx="4"/>
-<text x="625.00" y="111.23" text-anchor="middle" font-size="13" fill="#102a43">83.23%</text>
-<text x="625.00" y="572.00" text-anchor="end" transform="rotate(-28 625.00,572.00)" font-size="13" fill="#243b53">punctuation_heavy</text>
-<rect x="728.18" y="84.17" width="99.36" height="465.83" fill="#2f6b7c" rx="4"/>
-<text x="777.86" y="76.17" text-anchor="middle" font-size="13" fill="#102a43">90.00%</text>
-<text x="777.86" y="572.00" text-anchor="end" transform="rotate(-28 777.86,572.00)" font-size="13" fill="#243b53">mixed_digits_punctuation</text>
-<rect x="881.04" y="93.69" width="99.36" height="456.31" fill="#2f6b7c" rx="4"/>
-<text x="930.71" y="85.69" text-anchor="middle" font-size="13" fill="#102a43">88.16%</text>
-<text x="930.71" y="572.00" text-anchor="end" transform="rotate(-28 930.71,572.00)" font-size="13" fill="#243b53">long_sentence_gt20_words</text>
-<rect x="1033.89" y="95.56" width="99.36" height="454.44" fill="#2f6b7c" rx="4"/>
-<text x="1083.57" y="87.56" text-anchor="middle" font-size="13" fill="#102a43">87.80%</text>
-<text x="1083.57" y="572.00" text-anchor="end" transform="rotate(-28 1083.57,572.00)" font-size="13" fill="#243b53">paragraph_samples</text>
+<text x="78" y="85.00" text-anchor="end" font-size="14" fill="#486581">89.8%</text>
+<rect x="113.41" y="80.00" width="86.94" height="470.00" fill="#2f6b7c" rx="4"/>
+<text x="156.88" y="72.00" text-anchor="middle" font-size="13" fill="#102a43">89.76%</text>
+<text x="156.88" y="572.00" text-anchor="end" transform="rotate(-28 156.88,572.00)" font-size="13" fill="#243b53">single_word</text>
+<rect x="247.16" y="95.89" width="86.94" height="454.11" fill="#2f6b7c" rx="4"/>
+<text x="290.62" y="87.89" text-anchor="middle" font-size="13" fill="#102a43">86.73%</text>
+<text x="290.62" y="572.00" text-anchor="end" transform="rotate(-28 290.62,572.00)" font-size="13" fill="#243b53">multi_word_phrase</text>
+<rect x="380.91" y="114.00" width="86.94" height="436.00" fill="#2f6b7c" rx="4"/>
+<text x="424.38" y="106.00" text-anchor="middle" font-size="13" fill="#102a43">83.27%</text>
+<text x="424.38" y="572.00" text-anchor="end" transform="rotate(-28 424.38,572.00)" font-size="13" fill="#243b53">number_heavy</text>
+<rect x="514.66" y="111.03" width="86.94" height="438.97" fill="#2f6b7c" rx="4"/>
+<text x="558.12" y="103.03" text-anchor="middle" font-size="13" fill="#102a43">83.84%</text>
+<text x="558.12" y="572.00" text-anchor="end" transform="rotate(-28 558.12,572.00)" font-size="13" fill="#243b53">punctuation_heavy</text>
+<rect x="648.41" y="109.79" width="86.94" height="440.21" fill="#2f6b7c" rx="4"/>
+<text x="691.88" y="101.79" text-anchor="middle" font-size="13" fill="#102a43">84.07%</text>
+<text x="691.88" y="572.00" text-anchor="end" transform="rotate(-28 691.88,572.00)" font-size="13" fill="#243b53">mixed_digits_punctuation</text>
+<rect x="782.16" y="94.54" width="86.94" height="455.46" fill="#2f6b7c" rx="4"/>
+<text x="825.62" y="86.54" text-anchor="middle" font-size="13" fill="#102a43">86.99%</text>
+<text x="825.62" y="572.00" text-anchor="end" transform="rotate(-28 825.62,572.00)" font-size="13" fill="#243b53">long_sentence_gt20_words</text>
+<rect x="915.91" y="96.72" width="86.94" height="453.28" fill="#2f6b7c" rx="4"/>
+<text x="959.38" y="88.72" text-anchor="middle" font-size="13" fill="#102a43">86.57%</text>
+<text x="959.38" y="572.00" text-anchor="end" transform="rotate(-28 959.38,572.00)" font-size="13" fill="#243b53">paragraph_samples</text>
+<rect x="1049.66" y="99.09" width="86.94" height="450.91" fill="#2f6b7c" rx="4"/>
+<text x="1093.12" y="91.09" text-anchor="middle" font-size="13" fill="#102a43">86.12%</text>
+<text x="1093.12" y="572.00" text-anchor="end" transform="rotate(-28 1093.12,572.00)" font-size="13" fill="#243b53">long_text_gt200_words</text>
 </svg>
