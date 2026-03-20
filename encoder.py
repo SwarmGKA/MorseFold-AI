@@ -85,9 +85,9 @@ def text_to_morseSimplify(text: str) -> str:
     def encode_group(codes: list[str]) -> str:
         length = len(codes[0])
         if length <= 2:
-            return "\\".join(codes)
+            return "|".join(codes)
         if len(codes) < 2:
-            return "\\".join(codes)
+            return "|".join(codes)
 
         flags: list[int] = []
         regular_marks: dict[str, str] = {}
@@ -102,7 +102,7 @@ def text_to_morseSimplify(text: str) -> str:
             dashes = code.count("-")
             flags.append(1 if dashes >= dots else 0)
 
-        rs_tail = "-" if flags.count(1) >= flags.count(0) else "."
+        rs_tail = "-" if flags.count(1) > flags.count(0) else "."
         target = "." if rs_tail == "-" else "-"
         ids: list[str] = []
 
@@ -114,7 +114,9 @@ def text_to_morseSimplify(text: str) -> str:
             positions = [str(i) for i, ch in enumerate(code, start=1) if ch == target]
             ids.append("".join(positions) or "")
 
-        return "\\".join(ids) + f"%{length}{rs_tail}"
+        encoded = "\\".join(ids) + f"%{length}{rs_tail}"
+        raw = "|".join(codes)
+        return encoded if len(encoded) < len(raw) else raw
 
     words: list[str] = []
     for word in text.split(" / "):

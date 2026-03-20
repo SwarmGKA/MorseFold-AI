@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+
+
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
 
 from encoder import text_to_morseSimplify
 from main import text_to_morse
 
-
-DATASET_PATH = Path(__file__).with_name("datasets") / "paragraph" / "paragraph_samples.txt"
+DATASET_PATH = ROOT_DIR / "datasets" / "long" / "long_sentence_samples.txt"
 
 
 def load_dataset(path: Path) -> list[str]:

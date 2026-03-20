@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import csv
+import sys
 from pathlib import Path
+
+
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
 
 from encoder import text_to_morseSimplify
 from main import text_to_morse
 
-
-DATASETS_DIR = Path(__file__).with_name("datasets")
-OUTPUT_DIR = Path(__file__).with_name("output")
+DATASETS_DIR = ROOT_DIR / "datasets"
+OUTPUT_DIR = ROOT_DIR / "output"
 BASE_DATASET_PATH = DATASETS_DIR / "base" / "standard_samples.txt"
 LONG_DATASET_PATH = DATASETS_DIR / "long" / "long_sentence_samples.txt"
 PARAGRAPH_DATASET_PATH = DATASETS_DIR / "paragraph" / "paragraph_samples.txt"
