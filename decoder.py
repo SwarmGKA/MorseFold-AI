@@ -131,12 +131,12 @@ def simplified_to_text(text: str) -> str:
 
 
 def main() -> None:
-    text = input("请输入要解码的简化代码: ").strip()
+    text = input("Enter the simplified code to decode: ").strip()
     try:
         morse = simplified_to_morse(text)
         plain_text = simplified_to_text(text)
     except (TypeError, ValueError) as exc:
-        print(f"解码失败: {exc}")
+        print(f"Decoding failed: {exc}")
         return
 
     print(f"Decoded Morse Code: {morse}")

@@ -93,8 +93,8 @@ def text_to_morse(text: str, *, letter_sep: str = " ", word_sep: str = " / ") ->
 			code = MORSE_CODE.get(key)
 			if code is None:
 				raise ValueError(
-					f"不支持的字符: {ch!r} (U+{ord(ch):04X}). "
-					"目前仅支持英文字母、数字和常见英文标点。"
+					f"Unsupported character: {ch!r} (U+{ord(ch):04X}). "
+					"Only English letters, digits, and common English punctuation are supported."
 				)
 			letters.append(code)
 		encoded_words.append(letter_sep.join(letters))
@@ -102,12 +102,12 @@ def text_to_morse(text: str, *, letter_sep: str = " ", word_sep: str = " / ") ->
 
 
 def main() -> None:
-	text = input("请输入要转换的文本: ").strip()
+	text = input("Enter the text to convert: ").strip()
 	try:
 		morse = text_to_morse(text)
 		new_code = text_to_morseSimplify(morse)
 	except (TypeError, ValueError) as exc:
-		print(f"转换失败: {exc}")
+		print(f"Conversion failed: {exc}")
 		return
 
 	print(f"Morse Code: {morse}")
