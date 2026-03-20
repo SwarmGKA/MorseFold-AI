@@ -32,7 +32,7 @@ def main() -> None:
     print("-" * 78)
 
     for text in samples:
-        morse = text_to_morse(text)
+        morse = text_to_morse(text, word_sep=" / ")
         simplified = text_to_morseSimplify(morse)
         morse_len = len(morse)
         simplified_len = len(simplified)
@@ -60,3 +60,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

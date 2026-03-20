@@ -119,8 +119,8 @@ def text_to_morseSimplify(text: str) -> str:
         return encoded if len(encoded) < len(raw) else raw
 
     words: list[str] = []
-    for word in text.split(" / "):
-        codes = [code for code in word.split() if code]
+    for word in text.split("/"):
+        codes = [code for code in word.strip().split() if code]
         if not codes:
             continue
 

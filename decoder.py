@@ -107,7 +107,10 @@ def morse_to_text(text: str) -> str:
         return ""
 
     words: list[str] = []
-    for word in text.split(" / "):
+    for word in text.split("/"):
+        word = word.strip()
+        if not word:
+            continue
         letters: list[str] = []
         for code in word.split():
             letter = REVERSE_MORSE_CODE.get(code)
