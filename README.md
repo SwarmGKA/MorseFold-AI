@@ -1,208 +1,211 @@
+[![English](https://img.shields.io/badge/README-English-2f6b7c)](README.md)
+[![简体中文](https://img.shields.io/badge/README-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-c46a2d)](README.zh-CN.md)
+
 # Morse Code Simplify
 
-一种面向摩斯码序列的可逆轻量压缩实验：先将文本映射为标准摩斯码，再基于“连续同长度分组 + 符号偏向 + 规则交替结构”生成更短的简化表示，并支持完整解码回原始文本。
+A reversible lightweight compression experiment for Morse code sequences: text is first converted into standard Morse code, then transformed into a shorter simplified representation using consecutive equal-length grouping, symbol bias, and alternating-pattern detection, while still supporting full decoding back to the original text.
 
 ## Abstract
 
-本项目研究一个很具体的问题：标准摩斯码本身已经是离散符号序列，但在字符级仍存在明显结构冗余，例如相同长度的连续模式、点划比例偏向，以及严格交替的规则结构。基于这些特征，项目提出了一种可逆的组内简化编码方法。该方法不追求全局最优压缩，而是通过局部规则压缩和“收益不足即回退”的策略，在保证解码稳定性的前提下，尽量缩短编码长度。
+This project studies a narrow but practical question: although standard Morse code is already a discrete symbol sequence, it still contains visible structural redundancy at the character level, including repeated length patterns, dot-dash bias, and fully alternating structures. Based on these properties, the project implements a reversible intra-group simplification method. Rather than pursuing globally optimal compression, it applies local structural rules with a fallback policy that keeps the raw Morse group whenever simplification is not shorter.
 
-从当前实现与仓库内实验结果看，该方法在单词、短语、长句、段落和长文本场景中都能稳定获得一定压缩收益，且无需第三方依赖，便于教学、演示和后续算法迭代。
+From the current implementation and benchmark outputs in this repository, the method produces consistent character-level savings across single words, phrases, long sentences, paragraphs, and long texts. The implementation uses only the Python standard library, which makes it suitable for teaching demos, small research prototypes, and further algorithm iteration.
 
 ## Problem Statement
 
-标准摩斯码有两个直接问题：
+Standard Morse code has two direct limitations in this context:
 
-- 它是为可传输性设计的，不是为文本压缩设计的
-- 字符之间虽然短小，但长文本下总长度仍然显著增长
+- It was designed for transmission robustness, not text compression.
+- Even though each symbol is small, total encoded length still grows quickly for long texts.
 
-本项目尝试回答两个问题：
+This project tries to answer two questions:
 
-1. 是否能在不破坏可逆性的前提下，对标准摩斯码做结构化简化？
-2. 这种简化在不同文本尺度下是否能稳定产生字符级收益？
+1. Can standard Morse code be structurally simplified without losing reversibility?
+2. Can that simplification produce stable character-level gains across different text scales?
 
 ## Method
 
-核心实现位于 [`encoder.py`](encoder.py) 的 `text_to_morseSimplify()`，整体流程如下：
+The core implementation is [`encoder.py`](encoder.py), specifically `text_to_morseSimplify()`. The overall pipeline is:
 
-1. 使用 [`main.py`](main.py) 中的 `text_to_morse()` 将文本转为标准摩斯码
-2. 在每个单词内部，按“连续且长度相同”的摩斯码序列分组
-3. 对满足条件的组计算组级规则符号 `RS`
-4. 将组内每个摩斯码转换为位置标识 `ID`
-5. 若压缩后不比原始组更短，则回退为原始摩斯组
-6. 输出可逆的简化编码串
+1. Convert plain text to standard Morse code with [`main.py`](main.py) and `text_to_morse()`.
+2. Inside each word, split the Morse stream into groups of consecutive codes with the same length.
+3. Compute a group-level rule symbol `RS` for each compressible group.
+4. Convert each Morse code in that group into an identifier `ID`.
+5. If the compressed group is not shorter than the raw group, keep the raw Morse group.
+6. Emit a reversible simplified string.
 
 ### Grouping Rule
 
-每个单词内部按连续同长度分组。例如：
+Inside each word, grouping is based on consecutive Morse codes with identical length. For example:
 
 ```text
 .... . .-.. .-.. ---
 ```
 
-会被划分为：
+is split into:
 
 ```text
 .... | . | .-.. .-.. | ---
 ```
 
-只有“连续且长度一致”的码元才会进入同一组。
+Only consecutive codes with the same length can belong to the same group.
 
 ### RS Symbol
 
-每个候选组先生成一个 `RS`，格式为：
+Each candidate group first produces an `RS` value with the form:
 
 ```text
 <length><tail>
 ```
 
-例如 `4-`、`3.`。
+For example: `4-`, `3.`.
 
-其中：
+Where:
 
-- `length` 是组内每个摩斯码的长度
-- `tail` 是组偏向符号
+- `length` is the Morse length shared by all codes in the group.
+- `tail` is the group bias symbol.
 
-组偏向的计算方式：
+The bias is computed as follows:
 
-- 若某个摩斯码中 `-` 数量大于等于 `.`，记为 `1`
-- 若 `.` 数量大于 `-`，记为 `0`
-- 若该码是严格交替结构，也按特殊规则参与判断
-- 组内 `1` 多于 `0`，则 `tail = -`
-- 否则 `tail = .`
+- If a Morse code has at least as many `-` as `.`, it is marked as `1`.
+- If it has more `.` than `-`, it is marked as `0`.
+- If the code is strictly alternating, it is handled as a special regular case.
+- If the group has more `1` than `0`, then `tail = -`.
+- Otherwise, `tail = .`.
 
 ### ID Encoding
 
-组确定 `RS` 后，为每个摩斯码生成 `ID`：
+After `RS` is determined, each Morse code in the group is converted into an `ID`:
 
-- 若 `RS` 末尾为 `-`，记录 `.` 出现的位置
-- 若 `RS` 末尾为 `.`，记录 `-` 出现的位置
-- 位置从 `1` 开始编号
-- 多个位置直接拼接成字符串
+- If `RS` ends with `-`, record the positions of `.`.
+- If `RS` ends with `.`, record the positions of `-`.
+- Positions are 1-based.
+- Multiple positions are concatenated directly as a string.
 
-例如在 `4-` 组中：
+For example, in a `4-` group:
 
 - `--.- -> 3`
 - `---- -> ""`
 
 ### Alternating Structure
 
-若一个摩斯码从头到尾没有相邻重复字符，则记为规则交替码：
+If a Morse code contains no adjacent repeated symbol from start to end, it is treated as a regular alternating code:
 
-- 以 `-` 开头记为 `+`
-- 以 `.` 开头记为 `-`
+- Codes starting with `-` are encoded as `+`
+- Codes starting with `.` are encoded as `-`
 
-例如：
+For example:
 
 - `-.-. -> +`
 - `.-.- -> -`
 
 ### Reversible Output Format
 
-简化编码的逻辑结构为：
+The simplified output has the logical form:
 
 ```text
 ID\ID\...%RS|raw_group|ID\ID\...%RS/...
 ```
 
-分隔符含义：
+Separators:
 
-- `\`：组内多个 `ID`
-- `%`：`ID` 与 `RS` 的分界
-- `|`：单词内多个分组
-- `/`：单词边界
+- `\`: separates multiple `ID` values inside one compressed group
+- `%`: separates `ID` data from `RS`
+- `|`: separates groups inside one word
+- `/`: separates words
 
-该格式由 [`decoder.py`](decoder.py) 完整解码回标准摩斯码与普通文本。
+This format is fully decoded by [`decoder.py`](decoder.py) back into standard Morse code and then plain text.
 
 ### Fallback Strategy
 
-这也是当前实现最重要的工程约束之一：
+This is one of the main engineering constraints in the current implementation:
 
 ```text
 if len(encoded_group) >= len(raw_group):
     keep raw_group
 ```
 
-也就是说，算法不是“强制压缩”，而是“有收益才压缩”。这保证了输出不会因为附加元信息而整体变长。
+So the algorithm is not a forced compression scheme. It only compresses when the result is actually shorter.
 
 ## Example
 
 ### Example A
 
-输入文本：
+Input text:
 
 ```text
 QC
 ```
 
-标准摩斯码：
+Standard Morse code:
 
 ```text
 --.- -.-.
 ```
 
-简化编码：
+Simplified encoding:
 
 ```text
 3\+%4-
 ```
 
-解释：
+Explanation:
 
-- 两个字符长度都为 `4`，因此可分为同一组
-- 组偏向结果为 `4-`
-- `--.-` 中 `.` 在第 `3` 位，编码为 `3`
-- `-.-.` 为规则交替码，编码为 `+`
+- Both characters have length `4`, so they form one group.
+- The group bias becomes `4-`.
+- In `--.-`, the dot is at position `3`, so its identifier is `3`.
+- `-.-.` is a regular alternating code, so it is encoded as `+`.
 
 ### Example B
 
-输入文本：
+Input text:
 
 ```text
 HELLO WORLD
 ```
 
-标准摩斯码：
+Standard Morse code:
 
 ```text
 .... . .-.. .-.. --- / .-- --- .-. .-.. -..
 ```
 
-简化编码：
+Simplified encoding:
 
 ```text
 ....|.|2\2%4.|---/1\\-%3-|.-..|-..
 ```
 
-这说明压缩并不是逐字符统一进行，而是对每个单词内部的候选组分别判断，部分组压缩，部分组保持原样。
+This shows that simplification is not applied uniformly character by character. Each candidate group inside a word is evaluated independently, so some groups are compressed and others remain raw.
 
 ## Demo
 
-### 1. 文本编码演示
+### 1. Text Encoding Demo
 
 ```powershell
 python main.py
 ```
 
-程序会输出：
+The program prints:
 
-- 标准摩斯码
-- 简化编码
-- 两者长度
-- 字符减少量
-- 压缩率
+- Standard Morse code
+- Simplified encoding
+- Both lengths
+- Character reduction
+- Compression ratio
 
-### 2. 简化编码解码演示
+### 2. Simplified-Code Decoding Demo
 
 ```powershell
 python decoder.py
 ```
 
-程序会输出：
+The program prints:
 
-- 解码后的标准摩斯码
-- 解码后的文本
+- Decoded standard Morse code
+- Decoded plain text
 
-### 3. Python API 演示
+### 3. Python API Demo
 
 ```python
 from main import text_to_morse
@@ -221,34 +224,34 @@ print(simplified_to_text(simplified))
 
 ## Experimental Setup
 
-实验脚本位于 [`benchmarks/`](benchmarks/)：
+Benchmark scripts are under [`benchmarks/`](benchmarks/):
 
-- [`benchmarks/benchmark_experiments.py`](benchmarks/benchmark_experiments.py)：统一实验入口，生成汇总 CSV
-- [`benchmarks/visualize_results.py`](benchmarks/visualize_results.py)：将 CSV 生成 SVG 图表
-- [`benchmarks/benchmark_dataset.py`](benchmarks/benchmark_dataset.py)：基础样本统计
-- [`benchmarks/benchmark_long_sentences.py`](benchmarks/benchmark_long_sentences.py)：长句统计
-- [`benchmarks/benchmark_paragraphs.py`](benchmarks/benchmark_paragraphs.py)：段落统计
-- [`benchmarks/benchmark_long_texts.py`](benchmarks/benchmark_long_texts.py)：长文本统计
+- [`benchmarks/benchmark_experiments.py`](benchmarks/benchmark_experiments.py): unified experiment entry point, generates summary CSV files
+- [`benchmarks/visualize_results.py`](benchmarks/visualize_results.py): converts CSV outputs into SVG charts
+- [`benchmarks/benchmark_dataset.py`](benchmarks/benchmark_dataset.py): base-sample statistics
+- [`benchmarks/benchmark_long_sentences.py`](benchmarks/benchmark_long_sentences.py): long-sentence statistics
+- [`benchmarks/benchmark_paragraphs.py`](benchmarks/benchmark_paragraphs.py): paragraph statistics
+- [`benchmarks/benchmark_long_texts.py`](benchmarks/benchmark_long_texts.py): long-text statistics
 
-数据集位于 [`datasets/`](datasets/)：
+Datasets are stored under [`datasets/`](datasets/):
 
-- `base`：基础短样本
-- `long`：长句样本
-- `paragraph`：段落样本
-- `long_text`：超长文本样本
+- `base`: short baseline samples
+- `long`: long-sentence samples
+- `paragraph`: paragraph samples
+- `long_text`: extra-long text samples
 
-运行方式：
+Run:
 
 ```powershell
 python benchmarks/benchmark_experiments.py
 python benchmarks/visualize_results.py
 ```
 
-输出文件位于 [`output/`](output/)。
+Outputs are written to [`output/`](output/).
 
 ## Results Overview
 
-以下结果来自当前仓库内已有实验输出 [`output/experiment_group_summary.csv`](output/experiment_group_summary.csv)。
+The following numbers come from the current repository output file [`output/experiment_group_summary.csv`](output/experiment_group_summary.csv).
 
 | Group | Samples | Compression Ratio | Normalized Compression Ratio | Total Reduction |
 | --- | ---: | ---: | ---: | ---: |
@@ -261,16 +264,16 @@ python benchmarks/visualize_results.py
 | paragraph_samples | 200 | 85.45% | 94.14% | 58951 |
 | long_text_gt200_words | 10 | 86.12% | 94.88% | 6626 |
 
-说明：
+Notes:
 
-- `Compression Ratio` 越低越好，表示简化编码占原标准摩斯码的比例
-- `Normalized Compression Ratio` 会扣除 `" / "` 与 `"/"` 的格式差异，更接近算法本身带来的收益
+- Lower `Compression Ratio` is better; it means the simplified representation occupies a smaller fraction of the original Morse string.
+- `Normalized Compression Ratio` removes the formatting advantage of replacing `" / "` with `"/"`, so it better isolates the algorithmic gain.
 
-从当前结果可以看到：
+From the current results:
 
-- 短样本和结构化样本上，压缩收益比较明显
-- 文本越长，归一化压缩率越接近 `1`，说明分隔符和控制信息的固定开销逐步被摊薄
-- 项目在长句、段落、长文本场景下仍保持正收益，但收益低于“高重复、高局部规律”的短样本组
+- Shorter and more structured samples show clearer gains.
+- As texts grow longer, normalized compression ratios move closer to `1`, which suggests that fixed separator and control overhead is being amortized.
+- The method still shows positive savings on long sentences, paragraphs, and long texts, but the gains are smaller than in highly repetitive short samples.
 
 ## Visualization
 
@@ -286,7 +289,7 @@ python benchmarks/visualize_results.py
 
 ![Sample Trend](output/sample_normalized_ratio_vs_word_count.svg)
 
-这些图适合直接用于项目汇报、答辩展示或 README 首页演示。
+These charts are suitable for reports, demos, presentations, or a repository landing page.
 
 ## Code Organization
 
@@ -300,44 +303,44 @@ morsecode_simplify/
 └─ output/
 ```
 
-模块职责：
+Module roles:
 
-- [`main.py`](main.py)：文本到标准摩斯码；命令行编码入口
-- [`encoder.py`](encoder.py)：标准摩斯码到简化编码
-- [`decoder.py`](decoder.py)：简化编码到摩斯码、文本
-- [`benchmarks/`](benchmarks/)：实验统计与图表生成
+- [`main.py`](main.py): plain text to standard Morse code; CLI encoding entry point
+- [`encoder.py`](encoder.py): standard Morse code to simplified encoding
+- [`decoder.py`](decoder.py): simplified encoding back to Morse code and plain text
+- [`benchmarks/`](benchmarks/): experiment statistics and chart generation
 
 ## Engineering Rules Observed in Code
 
-从当前仓库实现可以总结出以下编码约定：
+The current codebase follows these visible implementation conventions:
 
-- 只使用 Python 标准库，无第三方依赖
-- 公开函数统一进行 `str` 类型校验
-- 非法输入抛出 `TypeError` 或 `ValueError`
-- 广泛使用类型标注
-- 文件读取默认使用 `utf-8`
-- 基准脚本统一使用 `pathlib.Path`
-- 命令行和模块调用两种方式都可使用
+- Python standard library only, with no third-party dependencies
+- Public functions validate `str` inputs
+- Invalid inputs raise `TypeError` or `ValueError`
+- Type annotations are used throughout
+- Files are read with `utf-8`
+- Benchmark scripts use `pathlib.Path`
+- Both CLI usage and module import usage are supported
 
 ## Limitations
 
-当前方法仍有明确边界：
+The current method still has clear boundaries:
 
-- 压缩单位是局部分组，不是全局最优编码
-- 当前字符集主要面向英文、数字和常见英文标点
-- 对结构不规律的摩斯序列，收益可能有限
-- `ID` 采用直接位置拼接，在更长码长场景下仍可能有额外冗余
-- 当前评估以字符长度为主，尚未引入更严格的信息论指标
+- Compression is local to groups, not globally optimal
+- The supported character set is mainly English letters, digits, and common English punctuation
+- Gains can be limited for irregular Morse sequences
+- `ID` values are direct position concatenations, which can still be redundant for longer code lengths
+- Evaluation currently focuses on character length, not stricter information-theoretic metrics
 
 ## Future Work
 
-后续可继续扩展的方向包括：
+Possible next steps include:
 
-- 设计更强的组间复用机制，而不只是组内压缩
-- 引入统计学习或词典机制，进一步压缩高频模式
-- 对 `RS` 和 `ID` 设计更紧凑的元编码方案
-- 引入更系统的实验对照，如与 RLE、Huffman 风格方案比较
-- 增加论文式评估指标，如熵估计、解码复杂度、吞吐表现
+- stronger reuse across groups instead of only intra-group compression
+- statistical or dictionary-based handling of high-frequency patterns
+- a more compact meta-encoding for `RS` and `ID`
+- systematic comparisons against alternatives such as RLE-style or Huffman-style approaches
+- more formal metrics such as entropy estimates, decoding complexity, and throughput
 
 ## Environment
 
@@ -345,15 +348,15 @@ morsecode_simplify/
 
 ## Reproducibility
 
-当前仓库代码已经支持完整往返：
+The current repository supports the full round trip:
 
 ```text
 text -> morse -> simplified -> morse -> text
 ```
 
-在现有数据集上，可直接用脚本复现实验、生成 CSV，并导出 SVG 图表，适合作为：
+Using the included datasets and scripts, the project can reproduce benchmark CSV files and SVG charts directly. That makes it suitable for:
 
-- 算法课程作业
-- 小型论文原型
-- 编码规则展示 Demo
-- GitHub 项目演示页
+- algorithm coursework
+- small paper prototypes
+- encoding-rule demos
+- GitHub project showcases
