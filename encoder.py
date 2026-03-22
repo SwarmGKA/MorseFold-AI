@@ -57,6 +57,25 @@ r"""
 from functools import lru_cache
 
 
+RS_TOKEN_TO_TEXT = {
+    "A": "1-",
+    "B": "1.",
+    "C": "2-",
+    "D": "2.",
+    "E": "3-",
+    "F": "3.",
+    "G": "4-",
+    "H": "4.",
+    "I": "5-",
+    "J": "5.",
+    "K": "6-",
+    "L": "6.",
+    "M": "7-",
+    "N": "7.",
+}
+RS_TEXT_TO_TOKEN = {value: key for key, value in RS_TOKEN_TO_TEXT.items()}
+
+
 @lru_cache(maxsize=128)
 def is_regular(code: str) -> str | None:
     if len(code) < 2:
@@ -102,8 +121,6 @@ def optimize_same_length_run(codes: tuple[str, ...]) -> tuple[str, ...]:
         return ()
 
     code_length = len(codes[0])
-    if code_length <= 2:
-        return codes
 
     ids_with_dash_rs: list[str] = []
     ids_with_dot_rs: list[str] = []
@@ -112,8 +129,8 @@ def optimize_same_length_run(codes: tuple[str, ...]) -> tuple[str, ...]:
         ids_with_dash_rs.append(dot_positions)
         ids_with_dot_rs.append(dash_positions)
 
-    dash_suffix = f"%{code_length}-"
-    dot_suffix = f"%{code_length}."
+    dash_suffix = RS_TEXT_TO_TOKEN[f"{code_length}-"]
+    dot_suffix = RS_TEXT_TO_TOKEN[f"{code_length}."]
     best_cost = [0] * (run_size + 1)
     best_choice_end = [run_size] * run_size
     best_choice_segment = [""] * run_size
@@ -169,7 +186,7 @@ def text_to_morseSimplify(text: str) -> str:
             -> The number of patterns in Morse code represented by each character and regular expression
 		/ -> space
         | -> separator between groups inside one word
-        Morse codes with length less than or equal to 2 are kept unchanged.
+        Any same-length run may be simplified if the encoded form is shorter.
         The simplified encoding is enabled only when there are at least two consecutive Morse codes with the same length.
 		ID\ID\..\ID%RS|ID\ID\..\ID%RS/... 
 
@@ -182,6 +199,16 @@ def text_to_morseSimplify(text: str) -> str:
         Cache repeated same-length runs and build candidate subsegments
         incrementally inside the dynamic program. This keeps the output
         unchanged while reducing repeated work.
+
+    Optimization #3:
+        Allow length-1 and length-2 same-length runs to participate in the
+        same shortest-representation search. Short runs still fall back to
+        raw Morse when compression is not profitable.
+
+    Optimization #4:
+        Replace the verbose `%<length><tail>` RS suffix with a single token
+        character. The decoder keeps backward compatibility with the older
+        suffix format.
     """
     if not isinstance(text, str):
         raise TypeError("text must be a str")

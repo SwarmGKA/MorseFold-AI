@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from main import MORSE_CODE
+from encoder import RS_TOKEN_TO_TEXT
 
 
 REVERSE_MORSE_CODE = {value: key for key, value in MORSE_CODE.items()}
@@ -65,17 +66,21 @@ def simplified_to_morse(text: str) -> str:
             if not segment:
                 continue
 
-            if "%" not in segment:
+            if "%" not in segment and segment[-1:] not in RS_TOKEN_TO_TEXT:
                 decoded_codes.extend(part for part in segment.split("\\") if part)
                 continue
 
-            ids_part, rs = segment.rsplit("%", 1)
-            if len(rs) < 2 or rs[-1] not in ".-":
-                raise ValueError(f"invalid RS: {rs!r}")
-
-            length_text = rs[:-1]
-            if not length_text.isdigit():
-                raise ValueError(f"invalid Morse length: {rs!r}")
+            if "%" in segment:
+                ids_part, rs = segment.rsplit("%", 1)
+                if len(rs) < 2 or rs[-1] not in ".-":
+                    raise ValueError(f"invalid RS: {rs!r}")
+                length_text = rs[:-1]
+                if not length_text.isdigit():
+                    raise ValueError(f"invalid Morse length: {rs!r}")
+            else:
+                ids_part = segment[:-1]
+                rs = RS_TOKEN_TO_TEXT[segment[-1]]
+                length_text = rs[:-1]
 
             length = int(length_text)
             rs_tail = rs[-1]
