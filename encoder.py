@@ -1,4 +1,5 @@
 r"""
+    original algorithm:
     The new encoding rules are as follows:
 		ID -> Identifier -> position of the dot/dash in the Morse code/Morse code regularity
 		RS -> Regular symbols 
@@ -53,6 +54,110 @@ r"""
         "--.-" is converted to "3" and "-.-." is converted to "+", then the final code is "3\+%4-"
 """
 
+from functools import lru_cache
+
+
+@lru_cache(maxsize=128)
+def is_regular(code: str) -> str | None:
+    if len(code) < 2:
+        return None
+    if any(code[i] == code[i - 1] for i in range(1, len(code))):
+        return None
+    return "+" if code[0] == "-" else "-"
+
+
+@lru_cache(maxsize=128)
+def build_position_ids(code: str) -> tuple[str, str]:
+    mark = is_regular(code)
+    if mark is not None:
+        return mark, mark
+
+    dot_positions: list[str] = []
+    dash_positions: list[str] = []
+
+    for index, ch in enumerate(code, start=1):
+        if ch == ".":
+            dot_positions.append(str(index))
+        else:
+            dash_positions.append(str(index))
+
+    return "".join(dot_positions), "".join(dash_positions)
+
+
+def pick_shorter_encoding(
+    dash_segment: str,
+    dot_segment: str,
+    dash_suffix: str,
+    dot_suffix: str,
+) -> str:
+    dash_encoded = dash_segment + dash_suffix
+    dot_encoded = dot_segment + dot_suffix
+    return min((dash_encoded, dot_encoded), key=lambda item: (len(item), item))
+
+
+@lru_cache(maxsize=32768)
+def optimize_same_length_run(codes: tuple[str, ...]) -> tuple[str, ...]:
+    run_size = len(codes)
+    if run_size == 0:
+        return ()
+
+    code_length = len(codes[0])
+    if code_length <= 2:
+        return codes
+
+    ids_with_dash_rs: list[str] = []
+    ids_with_dot_rs: list[str] = []
+    for code in codes:
+        dot_positions, dash_positions = build_position_ids(code)
+        ids_with_dash_rs.append(dot_positions)
+        ids_with_dot_rs.append(dash_positions)
+
+    dash_suffix = f"%{code_length}-"
+    dot_suffix = f"%{code_length}."
+    best_cost = [0] * (run_size + 1)
+    best_choice_end = [run_size] * run_size
+    best_choice_segment = [""] * run_size
+
+    # Dynamic programming picks the shortest mix of raw codes and encoded segments.
+    for start in range(run_size - 1, -1, -1):
+        raw_segment = codes[start]
+        raw_cost = code_length + (1 if start + 1 < run_size else 0) + best_cost[start + 1]
+        best_cost[start] = raw_cost
+        best_choice_end[start] = start + 1
+        best_choice_segment[start] = raw_segment
+
+        dash_segment = ids_with_dash_rs[start]
+        dot_segment = ids_with_dot_rs[start]
+        raw_length = code_length
+
+        for end in range(start + 2, run_size + 1):
+            dash_segment += "\\" + ids_with_dash_rs[end - 1]
+            dot_segment += "\\" + ids_with_dot_rs[end - 1]
+            raw_length += 1 + code_length
+
+            encoded_segment = pick_shorter_encoding(
+                dash_segment,
+                dot_segment,
+                dash_suffix,
+                dot_suffix,
+            )
+            if len(encoded_segment) >= raw_length:
+                continue
+
+            candidate_cost = len(encoded_segment) + (1 if end < run_size else 0) + best_cost[end]
+            if candidate_cost < best_cost[start]:
+                best_cost[start] = candidate_cost
+                best_choice_end[start] = end
+                best_choice_segment[start] = encoded_segment
+
+    segments: list[str] = []
+    index = 0
+    while index < run_size:
+        segments.append(best_choice_segment[index])
+        index = best_choice_end[index]
+    return tuple(segments)
+
+
 def text_to_morseSimplify(text: str) -> str:
     r"""
     Convert Morse code to simplified output.
@@ -67,6 +172,16 @@ def text_to_morseSimplify(text: str) -> str:
         Morse codes with length less than or equal to 2 are kept unchanged.
         The simplified encoding is enabled only when there are at least two consecutive Morse codes with the same length.
 		ID\ID\..\ID%RS|ID\ID\..\ID%RS/... 
+
+    Optimization #1:
+        For each same-length run inside a word, search for the shortest
+        reversible representation instead of encoding the whole run only once.
+        This keeps the decoder format unchanged while improving compression.
+
+    Optimization #2:
+        Cache repeated same-length runs and build candidate subsegments
+        incrementally inside the dynamic program. This keeps the output
+        unchanged while reducing repeated work.
     """
     if not isinstance(text, str):
         raise TypeError("text must be a str")
@@ -75,64 +190,21 @@ def text_to_morseSimplify(text: str) -> str:
     if not text:
         return ""
 
-    def is_regular(code: str) -> str | None:
-        if len(code) < 2:
-            return None
-        if any(code[i] == code[i - 1] for i in range(1, len(code))):
-            return None
-        return "+" if code[0] == "-" else "-"
-
-    def encode_group(codes: list[str]) -> str:
-        length = len(codes[0])
-        if length <= 2:
-            return "|".join(codes)
-        if len(codes) < 2:
-            return "|".join(codes)
-
-        flags: list[int] = []
-        regular_marks: dict[str, str] = {}
-
-        for code in codes:
-            mark = is_regular(code)
-            if mark is not None:
-                regular_marks[code] = mark
-                flags.append(1)
-                continue
-            dots = code.count(".")
-            dashes = code.count("-")
-            flags.append(1 if dashes >= dots else 0)
-
-        rs_tail = "-" if flags.count(1) > flags.count(0) else "."
-        target = "." if rs_tail == "-" else "-"
-        ids: list[str] = []
-
-        for code in codes:
-            mark = regular_marks.get(code)
-            if mark is not None:
-                ids.append(mark)
-                continue
-            positions = [str(i) for i, ch in enumerate(code, start=1) if ch == target]
-            ids.append("".join(positions) or "")
-
-        encoded = "\\".join(ids) + f"%{length}{rs_tail}"
-        raw = "|".join(codes)
-        return encoded if len(encoded) < len(raw) else raw
-
     words: list[str] = []
     for word in text.split("/"):
         codes = [code for code in word.strip().split() if code]
         if not codes:
             continue
 
-        groups: list[list[str]] = []
+        segments: list[str] = []
         current = [codes[0]]
         for code in codes[1:]:
             if len(code) == len(current[-1]):
                 current.append(code)
             else:
-                groups.append(current)
+                segments.extend(optimize_same_length_run(tuple(current)))
                 current = [code]
-        groups.append(current)
-        words.append("|".join(encode_group(group) for group in groups))
+        segments.extend(optimize_same_length_run(tuple(current)))
+        words.append("|".join(segments))
 
     return "/".join(words)
