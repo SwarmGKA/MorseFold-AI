@@ -74,6 +74,49 @@ RS_TOKEN_TO_TEXT = {
     "N": "7.",
 }
 RS_TEXT_TO_TOKEN = {value: key for key, value in RS_TOKEN_TO_TEXT.items()}
+ID_TOKEN_ALPHABET = "abcdefghijklmnopqrstuvwxyz!#$&'()*?;"
+ID_TEXT_SEQUENCE = (
+    "",
+    "+",
+    "-",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "12",
+    "14",
+    "15",
+    "16",
+    "23",
+    "24",
+    "25",
+    "34",
+    "45",
+    "47",
+    "123",
+    "124",
+    "125",
+    "134",
+    "146",
+    "234",
+    "235",
+    "345",
+    "346",
+    "456",
+    "1234",
+    "1256",
+    "1345",
+    "1346",
+    "1356",
+    "2345",
+    "12345",
+    "12356",
+)
+ID_TEXT_TO_TOKEN = {
+    text: ID_TOKEN_ALPHABET[index] for index, text in enumerate(ID_TEXT_SEQUENCE)
+}
+ID_TOKEN_TO_TEXT = {value: key for key, value in ID_TEXT_TO_TOKEN.items()}
 
 
 @lru_cache(maxsize=128)
@@ -124,10 +167,14 @@ def optimize_same_length_run(codes: tuple[str, ...]) -> tuple[str, ...]:
 
     ids_with_dash_rs: list[str] = []
     ids_with_dot_rs: list[str] = []
+    dash_tokens: list[str] = []
+    dot_tokens: list[str] = []
     for code in codes:
         dot_positions, dash_positions = build_position_ids(code)
         ids_with_dash_rs.append(dot_positions)
         ids_with_dot_rs.append(dash_positions)
+        dash_tokens.append(ID_TEXT_TO_TOKEN[dot_positions])
+        dot_tokens.append(ID_TEXT_TO_TOKEN[dash_positions])
 
     dash_suffix = RS_TEXT_TO_TOKEN[f"{code_length}-"]
     dot_suffix = RS_TEXT_TO_TOKEN[f"{code_length}."]
@@ -143,13 +190,13 @@ def optimize_same_length_run(codes: tuple[str, ...]) -> tuple[str, ...]:
         best_choice_end[start] = start + 1
         best_choice_segment[start] = raw_segment
 
-        dash_segment = ids_with_dash_rs[start]
-        dot_segment = ids_with_dot_rs[start]
+        dash_segment = dash_tokens[start]
+        dot_segment = dot_tokens[start]
         raw_length = code_length
 
         for end in range(start + 2, run_size + 1):
-            dash_segment += "\\" + ids_with_dash_rs[end - 1]
-            dot_segment += "\\" + ids_with_dot_rs[end - 1]
+            dash_segment += dash_tokens[end - 1]
+            dot_segment += dot_tokens[end - 1]
             raw_length += 1 + code_length
 
             encoded_segment = pick_shorter_encoding(
@@ -209,6 +256,10 @@ def text_to_morseSimplify(text: str) -> str:
         Replace the verbose `%<length><tail>` RS suffix with a single token
         character. The decoder keeps backward compatibility with the older
         suffix format.
+
+    Optimization #5:
+        Replace the high-frequency identifier strings with single-character
+        tokens and omit intra-group backslash separators in the compact form.
     """
     if not isinstance(text, str):
         raise TypeError("text must be a str")

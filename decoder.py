@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from main import MORSE_CODE
-from encoder import RS_TOKEN_TO_TEXT
+from encoder import ID_TOKEN_TO_TEXT, RS_TOKEN_TO_TEXT
 
 
 REVERSE_MORSE_CODE = {value: key for key, value in MORSE_CODE.items()}
@@ -84,7 +84,12 @@ def simplified_to_morse(text: str) -> str:
 
             length = int(length_text)
             rs_tail = rs[-1]
-            identifiers = ids_part.split("\\")
+            if "%" not in segment and "\\" not in ids_part and all(
+                token in ID_TOKEN_TO_TEXT for token in ids_part
+            ):
+                identifiers = [ID_TOKEN_TO_TEXT[token] for token in ids_part]
+            else:
+                identifiers = ids_part.split("\\")
             decoded_codes.extend(
                 decode_identifier(identifier, length, rs_tail)
                 for identifier in identifiers
