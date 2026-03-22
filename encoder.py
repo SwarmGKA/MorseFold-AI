@@ -117,6 +117,21 @@ ID_TEXT_TO_TOKEN = {
     text: ID_TOKEN_ALPHABET[index] for index, text in enumerate(ID_TEXT_SEQUENCE)
 }
 ID_TOKEN_TO_TEXT = {value: key for key, value in ID_TEXT_TO_TOKEN.items()}
+REFERENCE_TOKEN_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def encode_reference_index(index: int) -> str:
+    if index < 0:
+        raise ValueError("index must be non-negative")
+    if index == 0:
+        return REFERENCE_TOKEN_ALPHABET[0]
+
+    base = len(REFERENCE_TOKEN_ALPHABET)
+    chars: list[str] = []
+    while index:
+        index, remainder = divmod(index, base)
+        chars.append(REFERENCE_TOKEN_ALPHABET[remainder])
+    return "".join(reversed(chars))
 
 
 @lru_cache(maxsize=128)
@@ -260,6 +275,12 @@ def text_to_morseSimplify(text: str) -> str:
     Optimization #5:
         Replace the high-frequency identifier strings with single-character
         tokens and omit intra-group backslash separators in the compact form.
+
+    Optimization #6:
+        Reuse repeated simplified words within the same message via short
+        back-reference tokens. References are emitted only when shorter than
+        the original simplified word.
+
     """
     if not isinstance(text, str):
         raise TypeError("text must be a str")
@@ -268,6 +289,7 @@ def text_to_morseSimplify(text: str) -> str:
     if not text:
         return ""
 
+    seen_words: dict[str, int] = {}
     words: list[str] = []
     for word in text.split("/"):
         codes = [code for code in word.strip().split() if code]
@@ -283,6 +305,15 @@ def text_to_morseSimplify(text: str) -> str:
                 segments.extend(optimize_same_length_run(tuple(current)))
                 current = [code]
         segments.extend(optimize_same_length_run(tuple(current)))
-        words.append("|".join(segments))
+
+        simplified_word = "|".join(segments)
+        seen_index = seen_words.get(simplified_word)
+        if seen_index is not None:
+            reference_word = "~" + encode_reference_index(seen_index)
+            words.append(reference_word if len(reference_word) < len(simplified_word) else simplified_word)
+            continue
+
+        seen_words[simplified_word] = len(seen_words)
+        words.append(simplified_word)
 
     return "/".join(words)

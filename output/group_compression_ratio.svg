@@ -5,37 +5,37 @@
 <line x1="90" y1="550.00" x2="1160" y2="550.00" stroke="#d9e2ec" stroke-width="1"/>
 <text x="78" y="555.00" text-anchor="end" font-size="14" fill="#486581">0.0%</text>
 <line x1="90" y1="456.00" x2="1160" y2="456.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="461.00" text-anchor="end" font-size="14" fill="#486581">17.2%</text>
+<text x="78" y="461.00" text-anchor="end" font-size="14" fill="#486581">14.5%</text>
 <line x1="90" y1="362.00" x2="1160" y2="362.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="367.00" text-anchor="end" font-size="14" fill="#486581">34.4%</text>
+<text x="78" y="367.00" text-anchor="end" font-size="14" fill="#486581">29.0%</text>
 <line x1="90" y1="268.00" x2="1160" y2="268.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="273.00" text-anchor="end" font-size="14" fill="#486581">51.7%</text>
+<text x="78" y="273.00" text-anchor="end" font-size="14" fill="#486581">43.5%</text>
 <line x1="90" y1="174.00" x2="1160" y2="174.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="179.00" text-anchor="end" font-size="14" fill="#486581">68.9%</text>
+<text x="78" y="179.00" text-anchor="end" font-size="14" fill="#486581">58.0%</text>
 <line x1="90" y1="80.00" x2="1160" y2="80.00" stroke="#d9e2ec" stroke-width="1"/>
-<text x="78" y="85.00" text-anchor="end" font-size="14" fill="#486581">86.1%</text>
-<rect x="113.41" y="87.73" width="86.94" height="462.27" fill="#2f6b7c" rx="4"/>
-<text x="156.88" y="79.73" text-anchor="middle" font-size="13" fill="#102a43">84.70%</text>
+<text x="78" y="85.00" text-anchor="end" font-size="14" fill="#486581">72.4%</text>
+<rect x="113.41" y="124.24" width="86.94" height="425.76" fill="#2f6b7c" rx="4"/>
+<text x="156.88" y="116.24" text-anchor="middle" font-size="13" fill="#102a43">65.62%</text>
 <text x="156.88" y="572.00" text-anchor="end" transform="rotate(-28 156.88,572.00)" font-size="13" fill="#243b53">single_word</text>
-<rect x="247.16" y="124.58" width="86.94" height="425.42" fill="#2f6b7c" rx="4"/>
-<text x="290.62" y="116.58" text-anchor="middle" font-size="13" fill="#102a43">77.95%</text>
+<rect x="247.16" y="162.23" width="86.94" height="387.77" fill="#2f6b7c" rx="4"/>
+<text x="290.62" y="154.23" text-anchor="middle" font-size="13" fill="#102a43">59.77%</text>
 <text x="290.62" y="572.00" text-anchor="end" transform="rotate(-28 290.62,572.00)" font-size="13" fill="#243b53">multi_word_phrase</text>
-<rect x="380.91" y="125.07" width="86.94" height="424.93" fill="#2f6b7c" rx="4"/>
-<text x="424.38" y="117.07" text-anchor="middle" font-size="13" fill="#102a43">77.86%</text>
+<rect x="380.91" y="163.51" width="86.94" height="386.49" fill="#2f6b7c" rx="4"/>
+<text x="424.38" y="155.51" text-anchor="middle" font-size="13" fill="#102a43">59.57%</text>
 <text x="424.38" y="572.00" text-anchor="end" transform="rotate(-28 424.38,572.00)" font-size="13" fill="#243b53">number_heavy</text>
-<rect x="514.66" y="125.06" width="86.94" height="424.94" fill="#2f6b7c" rx="4"/>
-<text x="558.12" y="117.06" text-anchor="middle" font-size="13" fill="#102a43">77.86%</text>
+<rect x="514.66" y="163.52" width="86.94" height="386.48" fill="#2f6b7c" rx="4"/>
+<text x="558.12" y="155.52" text-anchor="middle" font-size="13" fill="#102a43">59.57%</text>
 <text x="558.12" y="572.00" text-anchor="end" transform="rotate(-28 558.12,572.00)" font-size="13" fill="#243b53">punctuation_heavy</text>
-<rect x="648.41" y="125.06" width="86.94" height="424.94" fill="#2f6b7c" rx="4"/>
-<text x="691.88" y="117.06" text-anchor="middle" font-size="13" fill="#102a43">77.86%</text>
+<rect x="648.41" y="163.52" width="86.94" height="386.48" fill="#2f6b7c" rx="4"/>
+<text x="691.88" y="155.52" text-anchor="middle" font-size="13" fill="#102a43">59.57%</text>
 <text x="691.88" y="572.00" text-anchor="end" transform="rotate(-28 691.88,572.00)" font-size="13" fill="#243b53">mixed_digits_punctuation</text>
-<rect x="782.16" y="80.72" width="86.94" height="469.28" fill="#2f6b7c" rx="4"/>
-<text x="825.62" y="72.72" text-anchor="middle" font-size="13" fill="#102a43">85.99%</text>
+<rect x="782.16" y="80.00" width="86.94" height="470.00" fill="#2f6b7c" rx="4"/>
+<text x="825.62" y="72.00" text-anchor="middle" font-size="13" fill="#102a43">72.44%</text>
 <text x="825.62" y="572.00" text-anchor="end" transform="rotate(-28 825.62,572.00)" font-size="13" fill="#243b53">long_sentence_gt20_words</text>
-<rect x="915.91" y="83.65" width="86.94" height="466.35" fill="#2f6b7c" rx="4"/>
-<text x="959.38" y="75.65" text-anchor="middle" font-size="13" fill="#102a43">85.45%</text>
+<rect x="915.91" y="96.09" width="86.94" height="453.91" fill="#2f6b7c" rx="4"/>
+<text x="959.38" y="88.09" text-anchor="middle" font-size="13" fill="#102a43">69.96%</text>
 <text x="959.38" y="572.00" text-anchor="end" transform="rotate(-28 959.38,572.00)" font-size="13" fill="#243b53">paragraph_samples</text>
-<rect x="1049.66" y="80.00" width="86.94" height="470.00" fill="#2f6b7c" rx="4"/>
-<text x="1093.12" y="72.00" text-anchor="middle" font-size="13" fill="#102a43">86.12%</text>
+<rect x="1049.66" y="126.03" width="86.94" height="423.97" fill="#2f6b7c" rx="4"/>
+<text x="1093.12" y="118.03" text-anchor="middle" font-size="13" fill="#102a43">65.34%</text>
 <text x="1093.12" y="572.00" text-anchor="end" transform="rotate(-28 1093.12,572.00)" font-size="13" fill="#243b53">long_text_gt200_words</text>
 </svg>

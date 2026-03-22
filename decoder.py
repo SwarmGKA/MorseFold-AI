@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from main import MORSE_CODE
-from encoder import ID_TOKEN_TO_TEXT, RS_TOKEN_TO_TEXT
+from encoder import ID_TOKEN_TO_TEXT, REFERENCE_TOKEN_ALPHABET, RS_TOKEN_TO_TEXT
 
 
 REVERSE_MORSE_CODE = {value: key for key, value in MORSE_CODE.items()}
@@ -54,10 +54,31 @@ def simplified_to_morse(text: str) -> str:
 
         return "".join(code)
 
+    def decode_reference_index(token: str) -> int:
+        base = len(REFERENCE_TOKEN_ALPHABET)
+        index = 0
+        for ch in token:
+            value = REFERENCE_TOKEN_ALPHABET.find(ch)
+            if value < 0:
+                raise ValueError(f"invalid word reference: {token!r}")
+            index = index * base + value
+        return index
+
     decoded_words: list[str] = []
+    seen_words: dict[str, int] = {}
+    known_words: list[str] = []
     for word in text.split("/"):
         word = word.strip()
         if not word:
+            continue
+        if word.startswith("~"):
+            ref_token = word[1:]
+            if not ref_token:
+                raise ValueError("empty word reference")
+            ref_index = decode_reference_index(ref_token)
+            if ref_index >= len(known_words):
+                raise ValueError(f"word reference out of range: {word!r}")
+            decoded_words.append(known_words[ref_index])
             continue
 
         decoded_codes: list[str] = []
@@ -96,7 +117,11 @@ def simplified_to_morse(text: str) -> str:
             )
 
         if decoded_codes:
-            decoded_words.append(" ".join(decoded_codes))
+            decoded_word = " ".join(decoded_codes)
+            if decoded_word not in seen_words:
+                seen_words[decoded_word] = len(known_words)
+                known_words.append(decoded_word)
+            decoded_words.append(decoded_word)
 
     return " / ".join(decoded_words)
 
