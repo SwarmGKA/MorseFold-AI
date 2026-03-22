@@ -5,6 +5,8 @@
 
 **Please note, this is an experimental algorithm**
 
+**AI Iterative Testing Repository Based on [MorseFold](https://github.com/qingchenyouforcc/MorseFold)**
+
 A reversible lightweight compression experiment for Morse code sequences: text is first converted into standard Morse code, then transformed into a shorter simplified representation using consecutive equal-length grouping, symbol bias, and alternating-pattern detection, while still supporting full decoding back to the original text.
 
 ## Abstract
